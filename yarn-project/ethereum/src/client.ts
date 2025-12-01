@@ -21,6 +21,8 @@ import type { ExtendedViemWalletClient, ViemPublicClient } from './types.js';
 type Config = {
   /** List of URLs of Ethereum RPC nodes that services will connect to (comma separated). */
   l1RpcUrls: string[];
+  /** List of URLs of Ethereum RPC nodes used for submitting L1 transactions (comma separated). */
+  l1SubmitterRpcUrls?: string[];
   /** The chain ID of the ethereum host. */
   l1ChainId: number;
   /** The polling interval viem uses in ms */
@@ -37,6 +39,23 @@ export function getPublicClient(config: Config): ViemPublicClient {
   return createPublicClient({
     chain: chain.chainInfo,
     transport: fallback(config.l1RpcUrls.map(url => http(url))),
+    pollingInterval: config.viemPollingIntervalMS,
+  });
+}
+
+/** Returns the list of RPC URLs to use for submitting transactions, defaulting to the read URLs. */
+export function getSubmitterRpcUrls(config: Config): string[] {
+  const submitters = (config.l1SubmitterRpcUrls ?? []).filter(url => url.length > 0);
+  return submitters.length > 0 ? submitters : config.l1RpcUrls;
+}
+
+/** Returns a viem public client configured for submitting L1 transactions. */
+export function getTxSubmitterClient(config: Config): ViemPublicClient {
+  const submitterRpcUrls = getSubmitterRpcUrls(config);
+  const chain = createEthereumChain(submitterRpcUrls, config.l1ChainId);
+  return createPublicClient({
+    chain: chain.chainInfo,
+    transport: fallback(submitterRpcUrls.map(url => http(url))),
     pollingInterval: config.viemPollingIntervalMS,
   });
 }

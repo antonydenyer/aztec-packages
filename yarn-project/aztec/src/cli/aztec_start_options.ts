@@ -159,6 +159,10 @@ export const aztecStartOptions: { [key: string]: AztecStartOption[] } = {
     configToFlag('--l1-chain-id', l1ReaderConfigMappings.l1ChainId),
     // Do not set default for CLI: keep undefined unless provided via flag or env
     configToFlag('--l1-rpc-urls', { ...l1ReaderConfigMappings.l1RpcUrls, defaultValue: undefined }),
+    configToFlag('--l1-submitter-rpc-urls', {
+      ...l1ReaderConfigMappings.l1SubmitterRpcUrls,
+      defaultValue: undefined,
+    }),
     configToFlag('--l1-consensus-host-urls', blobSinkConfigMappings.l1ConsensusHostUrls),
     configToFlag('--l1-consensus-host-api-keys', blobSinkConfigMappings.l1ConsensusHostApiKeys),
     configToFlag('--l1-consensus-host-api-key-headers', blobSinkConfigMappings.l1ConsensusHostApiKeyHeaders),

@@ -16,6 +16,7 @@ import {
   RollupContract,
   createEthereumChain,
   getPublicClient,
+  getTxSubmitterClient,
 } from '@aztec/ethereum';
 import { SlotNumber } from '@aztec/foundation/branded-types';
 import { compactArray, pick } from '@aztec/foundation/collection';
@@ -242,6 +243,8 @@ export class AztecNodeService implements AztecNode, AztecNodeAdmin, Traceable {
       pollingInterval: config.viemPollingIntervalMS,
     });
 
+    const txSubmitterClient = getTxSubmitterClient(config);
+
     const l1ContractsAddresses = await RegistryContract.collectAddresses(
       publicClient,
       config.l1Contracts.registryAddress,
@@ -423,7 +426,7 @@ export class AztecNodeService implements AztecNode, AztecNodeAdmin, Traceable {
       await slasherClient.start();
 
       const l1TxUtils = await createL1TxUtilsWithBlobsFromEthSigner(
-        publicClient,
+        txSubmitterClient,
         keyStoreManager!.createAllValidatorPublisherSigners(),
         { ...config, scope: 'sequencer' },
         { telemetry, logger: log.createChild('l1-tx-utils'), dateProvider },

@@ -6,6 +6,8 @@ import { type L1ContractAddresses, l1ContractAddressesMapping } from './l1_contr
 export interface L1ReaderConfig {
   /** List of URLs of Ethereum RPC nodes that services will connect to (comma separated). */
   l1RpcUrls: string[];
+  /** List of URLs of Ethereum RPC nodes used for submitting L1 transactions (comma separated). */
+  l1SubmitterRpcUrls?: string[];
   /** The chain ID of the ethereum host. */
   l1ChainId: number;
   /** The deployed l1 contract addresses */
@@ -28,6 +30,12 @@ export const l1ReaderConfigMappings: ConfigMappingsType<L1ReaderConfig> = {
     env: 'ETHEREUM_HOSTS',
     description: 'List of URLs of Ethereum RPC nodes that services will connect to (comma separated).',
     parseEnv: (val: string) => val.split(',').map(url => url.trim()),
+    defaultValue: [],
+  },
+  l1SubmitterRpcUrls: {
+    env: 'ETHEREUM_SUBMITTER_HOSTS',
+    description: 'List of URLs of Ethereum RPC nodes used for submitting L1 transactions (comma separated).',
+    parseEnv: (val: string) => val.split(',').map(url => url.trim()).filter(url => url.length > 0),
     defaultValue: [],
   },
   viemPollingIntervalMS: {

@@ -2,7 +2,13 @@ import { type Archiver, createArchiver } from '@aztec/archiver';
 import { BBCircuitVerifier, QueuedIVCVerifier, TestCircuitVerifier } from '@aztec/bb-prover';
 import { type BlobSinkClientInterface, createBlobSinkClient } from '@aztec/blob-sink/client';
 import { EpochCache } from '@aztec/epoch-cache';
-import { L1TxUtils, PublisherManager, RollupContract, createEthereumChain } from '@aztec/ethereum';
+import {
+  L1TxUtils,
+  PublisherManager,
+  RollupContract,
+  createEthereumChain,
+  getTxSubmitterClient,
+} from '@aztec/ethereum';
 import { pick } from '@aztec/foundation/collection';
 import { type Logger, createLogger } from '@aztec/foundation/log';
 import { DateProvider } from '@aztec/foundation/timer';
@@ -127,12 +133,14 @@ export async function createProverNode(
     pollingInterval: config.viemPollingIntervalMS,
   });
 
+  const txSubmitterClient = getTxSubmitterClient(config);
+
   const rollupContract = new RollupContract(publicClient, config.l1Contracts.rollupAddress.toString());
 
   const l1TxUtils = deps.l1TxUtils
     ? [deps.l1TxUtils]
     : await createL1TxUtilsFromEthSignerWithStore(
-        publicClient,
+        txSubmitterClient,
         proverSigners.signers,
         { ...config, scope: 'prover' },
         { telemetry, logger: log.createChild('l1-tx-utils'), dateProvider },
